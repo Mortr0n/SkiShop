@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { IProduct } from '../../models/product'
+import { IProduct } from '../../app/models/product'
 import ProductList from './ProductList';
 
 
