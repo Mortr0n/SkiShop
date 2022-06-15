@@ -1,6 +1,7 @@
 import { ShoppingCart } from "@mui/icons-material";
 import { AppBar, Badge, Box, Button, FormControlLabel, FormGroup, IconButton, List, ListItem, Switch, Toolbar, Typography } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { useStoreContext } from "../app/context/StoreContext";
 import './styles.css'
 
 interface IProps {
@@ -22,6 +23,9 @@ const rightLinks = [
 
 const Header: React.FC<IProps> = (props: IProps) => {
     const {darkMode, setDarkMode} = props;
+    const { basket } = useStoreContext();
+    const itemCount = basket?.items?.reduce((sum, item) => sum + item.quantity, 0);
+    
 
 const navStyles = {
     color: 'inherit', 
@@ -78,8 +82,8 @@ const navStyles = {
                 </List>
                 
                 <Box display='flex' alignItems='center' >
-                    <IconButton size="large" sx={{color: 'inherit'}}>
-                        <Badge badgeContent={4} color='secondary'>
+                    <IconButton component={Link} to='/basket' size="large" sx={{color: 'inherit'}}>
+                        <Badge badgeContent={itemCount} color='secondary'>
                             <ShoppingCart  />
                         </Badge>
                     </IconButton>
