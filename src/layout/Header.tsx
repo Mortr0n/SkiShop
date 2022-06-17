@@ -1,5 +1,5 @@
 import { ShoppingCart } from "@mui/icons-material";
-import { AppBar, Badge, Box, Button, FormControlLabel, FormGroup, IconButton, List, ListItem, Switch, Toolbar, Typography } from "@mui/material";
+import { AppBar, Badge, Box, FormControlLabel, FormGroup, IconButton, List, ListItem, Switch, Toolbar, Typography } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
 import { useStoreContext } from "../app/context/StoreContext";
 import './styles.css'

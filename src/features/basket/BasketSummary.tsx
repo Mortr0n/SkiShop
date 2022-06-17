@@ -1,7 +1,5 @@
-import { TableContainer, Paper, Table, TableBody, TableRow, TableCell, Typography, Grid } from "@mui/material";
-import { useEffect, useState } from "react";
+import { TableContainer, Paper, Table, TableBody, TableRow, TableCell, Grid } from "@mui/material";
 import { useStoreContext } from "../../app/context/StoreContext";
-import { BasketItem } from "../../app/models/basket";
 import { currencyFormat } from "../../app/util/util";
 
 

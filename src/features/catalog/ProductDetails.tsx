@@ -1,7 +1,5 @@
-import { SettingsBackupRestoreTwoTone } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import agent from "../../app/api/agent";
@@ -107,7 +105,7 @@ const ProductDetails = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <LoadingButton
-                            disabled={item?.quantity === quantity || !item && quantity === 0 }
+                            disabled={(item?.quantity === quantity) || (!item && (quantity === 0)) }
                             loading={submitting}
                             onClick={() => handleUpdateCart()}
                             sx={{height: '55px'}}

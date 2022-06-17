@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@emotion/react";
-import { CssBaseline, Container, createTheme } from "@mui/material";
+import { CssBaseline, Container, } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
