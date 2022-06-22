@@ -95,7 +95,7 @@ const ProductDetails = () => {
                     <Grid item xs={6}>
                         <LoadingButton
                             disabled={(item?.quantity === quantity) || (!item && (quantity === 0)) }
-                            loading={status.includes(`pendingRemoveItem${productId}`)}
+                            loading={status.includes(`pending`)}
                             onClick={handleUpdateCart}
                             sx={{height: '55px'}}
                             color='primary'

@@ -7,22 +7,27 @@ const productsAdapter = createEntityAdapter<IProduct>();
 
 export const fetchProductsAsync = createAsyncThunk<IProduct[]>(
     'catalog/fetchProductsAsync',
-    async () => {
+    // thunkAPI has to be the second argument.  inorder to have a blank argument the _ can be used.
+    // Then we have access to the thunkAPI for error handling in this case
+    async (_, thunkAPI ) => {
         try{
             return await agent.Catalog.list();
-        } catch(err) {
-            console.log(err);
+        } catch(err: any) {
+            // see note on fetchProduct for this error info
+            return thunkAPI.rejectWithValue({error: err.data});
         }
     }
 )
 
 export const fetchProductAsync = createAsyncThunk<IProduct, number>(
     'catalog/fetchProductAsync',
-    async (productId) => {
+    async (productId, thunkAPI) => {
         try{
             return await agent.Catalog.details(productId);
-        } catch(err) {
-            console.log(err);
+        } catch(err: any) {
+            // this async function is an inner function and we need to return out the 
+            // error using the thunkAPI in order to have the proper error handling from the asyncThunk
+            return thunkAPI.rejectWithValue({error: err.data});
         }
     }
 )
@@ -43,7 +48,8 @@ export const catalogSlice = createSlice({
             state.status = 'idle';
             state.productsLoaded = true;
         });
-        builder.addCase(fetchProductsAsync.rejected, (state) => {
+        builder.addCase(fetchProductsAsync.rejected, (state, action) => {
+            console.log("Rejected Fetch ProductS", action);
             state.status = 'idle';
         });
         builder.addCase(fetchProductAsync.pending, (state) => {
@@ -53,8 +59,9 @@ export const catalogSlice = createSlice({
             productsAdapter.upsertOne(state, action.payload);
             state.status = 'idle';
         });
-        builder.addCase(fetchProductAsync.rejected, (state) => {
-            state.status = 'idle'
+        builder.addCase(fetchProductAsync.rejected, (state, action) => {
+            console.log("Rejected Fetch Prodct", action);
+            state.status = 'idle';
         });
     })
 })
