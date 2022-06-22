@@ -2,58 +2,47 @@ import { LoadingButton } from "@mui/lab";
 import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import agent from "../../app/api/agent";
-import { useStoreContext } from "../../app/context/StoreContext";
 import NotFound from "../../app/errors/NotFound";
-import { IProduct } from '../../app/models/product';
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
 import LoadingComponent from "../../layout/LoadingComponent";
+import { addBasketItemAsync, removeBasketItemAsync } from "../basket/basketSlice";
+import { fetchProductAsync, productSelectors } from "./catalogSlice";
 
 
 const ProductDetails = () => {
     const { id } = useParams<{id: string | undefined}>();
-    const { basket, setBasket, removeItem } = useStoreContext();
-    const [product, setProduct] = useState<IProduct>();
-    const [loading, setLoading] = useState(true);
+    const productId = Number(id);
+    const { basket, status } = useAppSelector(state => state.basket);
+    const dispatch = useAppDispatch();
+    const product = useAppSelector(state => productSelectors.selectById(state, productId));
+    const { status : productStatus }  = useAppSelector(state => state.catalog)
     const [ quantity, setQuantity ] = useState(0);
-    const [ submitting, setSubmitting] = useState(false);
     const item = basket?.items?.find(item => item.productId === Number(id));
+    // I wanted the productId to be a number and never be undefined.  This was my way of doing this.
+    
 
     useEffect(() => {
         item && setQuantity(item.quantity);
-        agent.Catalog.details(Number(id))
-            .then(product => {
-                setProduct(product);
-                console.log("Product is ", product);
-            })
-            .catch((err) =>  console.log("Error getting product", err))
-            .finally(() => setLoading(false));
-    }, [id, item])
+        if(!product) dispatch(fetchProductAsync(productId));
+    }, [id, item, dispatch, product])
 
     const handleInputChange = (event: any) => {
         event.target.value >= 0 && setQuantity(parseInt(event.target.value));
     }
 
     const handleUpdateCart = () => {
-        setSubmitting(true);
         if(!item || quantity > item.quantity) {
             const updatedQuantity = item ? quantity - item.quantity : quantity;
-            agent.Basket.addItem(Number(id), updatedQuantity)
-                .then((basket) => setBasket(basket))
-                .catch((err) => console.log("Error adding to basket", err))
-                .finally(() =>  setSubmitting(false));
+            dispatch(addBasketItemAsync({productId, quantity: updatedQuantity}))
         } else if(quantity < item.quantity) {
             const updatedQuantity = item.quantity - quantity; 
-            agent.Basket.removeItem(Number(id), updatedQuantity)
-                .then(() => removeItem(Number(id), updatedQuantity))
-                .catch((err) => console.log("Error with removing quantity from item", err))
-                .finally(() => setSubmitting(false));
+            dispatch(removeBasketItemAsync({productId, quantity: updatedQuantity}))
         } else {
             console.log("The update quantity button should not have been enabled");
-            setSubmitting(false);
         }
     }
 
-    if (loading) return <LoadingComponent message="Grabbing your product from the back" />
+    if (productStatus.includes('pending')) return <LoadingComponent message="Grabbing your product from the back" />
 
     if (!product) return <NotFound />
 
@@ -106,8 +95,8 @@ const ProductDetails = () => {
                     <Grid item xs={6}>
                         <LoadingButton
                             disabled={(item?.quantity === quantity) || (!item && (quantity === 0)) }
-                            loading={submitting}
-                            onClick={() => handleUpdateCart()}
+                            loading={status.includes(`pendingRemoveItem${productId}`)}
+                            onClick={handleUpdateCart}
                             sx={{height: '55px'}}
                             color='primary'
                             size="large"

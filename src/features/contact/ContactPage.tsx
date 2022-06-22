@@ -21,7 +21,6 @@ const ContactPage = () => {
             <textarea name="count" value={count} onChange={(e) => setCount(Number(e.target.value))} />
             <Typography variant="h4">Change Add and Subtract amount  </Typography>
         </>
-        
     )
 }
 

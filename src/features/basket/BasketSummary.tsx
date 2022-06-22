@@ -1,11 +1,11 @@
 import { TableContainer, Paper, Table, TableBody, TableRow, TableCell, Grid } from "@mui/material";
-import { useStoreContext } from "../../app/context/StoreContext";
+import { useAppSelector } from "../../app/store/configureStore";
 import { currencyFormat } from "../../app/util/util";
 
 
 
 const BasketSummary = () =>  {
-    const { basket } = useStoreContext();    
+    const { basket } = useAppSelector(state => state.basket);
     // using reducer to get the sum total of items prices
     const subTotal = (basket?.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0 ) ?? 0);
     const deliveryFee = (subTotal >= 10000 || subTotal <= 0) ? 0 : 1400;

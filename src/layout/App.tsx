@@ -6,12 +6,13 @@ import { Route, Switch } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import agent from "../app/api/agent";
-import { useStoreContext } from "../app/context/StoreContext";
 import NotFound from "../app/errors/NotFound";
 import ServerError from "../app/errors/ServerError";
+import { useAppDispatch } from "../app/store/configureStore";
 import { getCookie } from "../app/util/util";
 import AboutPage from "../features/about/AboutPage";
 import BasketPage from "../features/basket/BasketPage";
+import { setBasket } from "../features/basket/basketSlice";
 import Catalog from "../features/catalog/Catalog";
 import ProductDetails from "../features/catalog/ProductDetails";
 import CheckoutPage from "../features/checkout/CheckoutPage";
@@ -22,7 +23,7 @@ import LoadingComponent from "./LoadingComponent";
 
 
 function App() {
-  const { setBasket } = useStoreContext();
+  const dispatch = useAppDispatch();
   const [ loading, setLoading ] = useState(true);
   const [ darkMode, setDarkMode ] = useState(false);
   const paletteType = darkMode ? 'dark' : 'light'
@@ -31,13 +32,13 @@ function App() {
     const buyerId = getCookie('buyerId');
     if(buyerId) {
       agent.Basket.get()
-        .then(basket => setBasket(basket))
+        .then(basket => dispatch(setBasket(basket)))
         .catch((err) => console.log("Error getting basket using buyerId", err))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
-  }, [setBasket])
+  }, [dispatch])
 
   const theme = createTheme({
     palette: {
