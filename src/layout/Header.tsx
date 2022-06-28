@@ -1,8 +1,8 @@
 import { ShoppingCart } from "@mui/icons-material";
 import { AppBar, Badge, Box, FormControlLabel, FormGroup, IconButton, List, ListItem, Switch, Toolbar, Typography } from "@mui/material";
 import { Link, NavLink } from "react-router-dom";
-import { useStoreContext } from "../app/context/StoreContext";
 import { useAppSelector } from "../app/store/configureStore";
+import SignedInMenu from "./SignedInMenu";
 import './styles.css'
 
 interface IProps {
@@ -24,7 +24,8 @@ const rightLinks = [
 
 const Header: React.FC<IProps> = (props: IProps) => {
     const {darkMode, setDarkMode} = props;
-    const { basket } = useAppSelector(state => state.basket)
+    const { basket } = useAppSelector(state => state.basket);
+    const { user } = useAppSelector(state => state.account);
     const itemCount = basket?.items?.reduce((sum, item) => sum + item.quantity, 0);
     
 
@@ -88,20 +89,27 @@ const navStyles = {
                             <ShoppingCart  />
                         </Badge>
                     </IconButton>
-                    <List sx={{display: 'flex', }}>
-                        {
-                            rightLinks.map(({title, path}) => (
-                                <ListItem 
-                                    key={path}
-                                    component={NavLink}
-                                    to={path}
-                                    sx={navStyles}
-                                >
-                                    {title}
-                                </ListItem>
-                            ))
-                        }
-                    </List>
+                    {user ? (
+                        <SignedInMenu />
+                    )
+                    : 
+                    (
+                        <List sx={{display: 'flex', }}>
+                            {
+                                rightLinks.map(({title, path}) => (
+                                    <ListItem 
+                                        key={path}
+                                        component={NavLink}
+                                        to={path}
+                                        sx={navStyles}
+                                    >
+                                        {title}
+                                    </ListItem>
+                                ))
+                            }
+                        </List>
+                    )}
+                    
                 </Box>
 
             </Toolbar>

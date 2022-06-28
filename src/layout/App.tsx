@@ -1,18 +1,19 @@
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline, Container, } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import agent from "../app/api/agent";
 import NotFound from "../app/errors/NotFound";
 import ServerError from "../app/errors/ServerError";
 import { useAppDispatch } from "../app/store/configureStore";
-import { getCookie } from "../app/util/util";
 import AboutPage from "../features/about/AboutPage";
+import { fetchCurrentUser } from "../features/account/accountSlice";
+import Login from "../features/account/Login";
+import Register from "../features/account/Register";
 import BasketPage from "../features/basket/BasketPage";
-import { setBasket } from "../features/basket/basketSlice";
+import { fetchBasketAsync } from "../features/basket/basketSlice";
 import Catalog from "../features/catalog/Catalog";
 import ProductDetails from "../features/catalog/ProductDetails";
 import CheckoutPage from "../features/checkout/CheckoutPage";
@@ -20,25 +21,27 @@ import ContactPage from "../features/contact/ContactPage";
 import HomePage from "../features/home/HomePage";
 import Header from "./Header";
 import LoadingComponent from "./LoadingComponent";
+import PrivateRoute from "./PrivateRoute";
 
 
 function App() {
   const dispatch = useAppDispatch();
   const [ loading, setLoading ] = useState(true);
   const [ darkMode, setDarkMode ] = useState(false);
-  const paletteType = darkMode ? 'dark' : 'light'
+  const paletteType = darkMode ? 'dark' : 'light';
 
-  useEffect(() => {
-    const buyerId = getCookie('buyerId');
-    if(buyerId) {
-      agent.Basket.get()
-        .then(basket => dispatch(setBasket(basket)))
-        .catch((err) => console.log("Error getting basket using buyerId", err))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+  const initApp = useCallback(async () =>  {
+    try {
+      await dispatch(fetchCurrentUser());
+      await dispatch(fetchBasketAsync());
+    } catch(err: any) {
+      console.log(err);
     }
   }, [dispatch])
+
+  useEffect(() => {
+    initApp().then(() => setLoading(false));
+  }, [initApp])
 
   const theme = createTheme({
     palette: {
@@ -81,7 +84,9 @@ function App() {
           <Route path='/contact'  component={ContactPage}   />
           <Route path='/server-error'  component={ServerError}   />
           <Route path='/basket' component={BasketPage} />
-          <Route path='/checkout' component={CheckoutPage} />
+          <PrivateRoute path='/checkout' component={CheckoutPage} />
+          <Route path='/login' component={Login} />
+          <Route path='/register' component={Register} />
           <Route component={NotFound} />
         </Switch>
         
